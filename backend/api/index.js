@@ -15,15 +15,20 @@ const adminRoutes = require('../routes/admin');
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:8000',
+  'http://localhost:5173',
+  'https://frontend-ten-coral-49.vercel.app',
+  'https://frontend-i4luguskg-egyrems-projects.vercel.app',
+  process.env.CORS_ORIGIN
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'http://localhost:5173',
-    'https://frontend-ten-coral-49.vercel.app',
-    /\.vercel\.app$/  // Allow all Vercel domains
-  ],
+  origin: allowedOrigins,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
