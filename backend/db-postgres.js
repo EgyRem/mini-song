@@ -32,16 +32,25 @@ if (process.env.DATABASE_URL) {
 // Connection pool
 const db = module.exports;
 
-// Test connection and initialize schema
-db.one("SELECT version();")
-  .then(() => {
-    console.log('✅ Database connected successfully');
-    initializeSchema();
-  })
-  .catch(err => {
-    console.error('❌ Database connection error:', err.message);
-    process.exit(1);
+// Test connection and initialize schema (non-blocking)
+if (process.env.NODE_ENV !== 'production') {
+  // Only test connection in development
+  db.one("SELECT version();")
+    .then(() => {
+      console.log('✅ Database connected successfully');
+      initializeSchema();
+    })
+    .catch(err => {
+      console.error('❌ Database connection error:', err.message);
+      process.exit(1);
+    });
+} else {
+  // In production (Vercel), initialize schema silently
+  initializeSchema().catch(err => {
+    console.error('⚠️ Schema initialization warning:', err.message);
+    // Don't exit - let the function continue
   });
+}
 
 // Initialize database schema
 async function initializeSchema() {
