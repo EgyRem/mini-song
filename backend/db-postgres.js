@@ -10,8 +10,14 @@ const pgp = pgPromise({
   },
 });
 
+// DEBUG: Log env vars
+console.log('📋 DB Config:');
+console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 // For Vercel/Production: use DATABASE_URL if available (injected by Vercel)
 if (process.env.DATABASE_URL) {
+  console.log('✅ Using DATABASE_URL from environment');
   const db = pgp(process.env.DATABASE_URL);
   module.exports = db;
 } else {
