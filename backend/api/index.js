@@ -3,6 +3,12 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Ensure JWT_SECRET is set
+if (!process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = process.env.JWT_SECRET || 'mini_spotify_jwt_secret_key_2026_production_min32chars';
+  console.warn('⚠️  JWT_SECRET not set, using default (not secure for production)');
+}
+
 // Initialize database
 const db = require('../db-postgres');
 
