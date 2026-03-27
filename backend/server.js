@@ -41,18 +41,20 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log('\n' + '='.repeat(60));
-  console.log('🎵 Mini Spotify Server Started');
-  console.log('='.repeat(60));
-  console.log('✅ Server running on port:', PORT);
-  console.log('✅ Environment:', process.env.NODE_ENV);
-  console.log('✅ JWT Secret configured:', !!process.env.JWT_SECRET);
-  console.log('✅ Database:', process.env.DB_HOST || 'Supabase PostgreSQL');
-  console.log('='.repeat(60) + '\n');
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log('\n' + '='.repeat(60));
+    console.log('🎵 Mini Spotify Server Started');
+    console.log('='.repeat(60));
+    console.log('✅ Server running on port:', PORT);
+    console.log('✅ Environment:', process.env.NODE_ENV);
+    console.log('✅ JWT Secret configured:', !!process.env.JWT_SECRET);
+    console.log('✅ Database:', process.env.DB_HOST || 'Supabase PostgreSQL');
+    console.log('='.repeat(60) + '\n');
+  });
+}
 
 // Export for Vercel serverless
 module.exports = app;
