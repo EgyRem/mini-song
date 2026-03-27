@@ -16,7 +16,13 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || ['http://localhost:3000', 'http://localhost:8000'],
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : [
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://localhost:5173',
+    'https://frontend-ten-coral-49.vercel.app',
+    /\.vercel\.app$/  // Allow all Vercel domains
+  ],
   credentials: true,
 }));
 app.use(express.json());
