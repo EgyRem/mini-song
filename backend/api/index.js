@@ -4,13 +4,13 @@ const path = require('path');
 require('dotenv').config();
 
 // Initialize database
-const db = require('./db-postgres');
+const db = require('../db-postgres');
 
 // Import routes
-const authRoutes = require('./routes/auth');
-const playlistRoutes = require('./routes/playlist');
-const songRoutes = require('./routes/song');
-const adminRoutes = require('./routes/admin');
+const authRoutes = require('../routes/auth');
+const playlistRoutes = require('../routes/playlist');
+const songRoutes = require('../routes/song');
+const adminRoutes = require('../routes/admin');
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
