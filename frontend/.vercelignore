@@ -1,0 +1,14 @@
+backend
+node_modules
+.git
+.gitignore
+package.json
+package-lock.json
+.env*
+README.md
+SETUP.md
+DEPLOYMENT.md
+DEBUG.md
+TODO.md
+.DS_Store
+.vercel
