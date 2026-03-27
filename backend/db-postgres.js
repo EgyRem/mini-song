@@ -1,26 +1,16 @@
 const pgPromise = require('pg-promise');
-const dotenv = require('dotenv');
-
-dotenv.config();
 
 // Initialize pg-promise
 const pgp = pgPromise({
   // Log all queries
   query(e) {
-    console.log('QUERY:', e.query);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('QUERY:', e.query);
+    }
   },
 });
 
-// Database connection config
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'mini_song',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'password',
-};
-
-// For Vercel/Production: use DATABASE_URL if available
+// For Vercel/Production: use DATABASE_URL if available (injected by Vercel)
 if (process.env.DATABASE_URL) {
   const db = pgp(process.env.DATABASE_URL);
   module.exports = db;
