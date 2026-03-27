@@ -1,57 +1,45 @@
 const pgPromise = require('pg-promise');
 
-// Initialize pg-promise
-const pgp = pgPromise({
-  // Log all queries
-  query(e) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('QUERY:', e.query);
-    }
-  },
-});
+// Initialize pg-promise with minimal config
+const pgp = pgPromise();
 
-// DEBUG: Log env vars
-console.log('📋 DB Config:');
-console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
+// Get database URL from environment (Vercel injects it)
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('❌ ERROR: DATABASE_URL environment variable is not set!');
+  process.exit(1);
+}
+
+console.log('📋 Connecting to database...');
+console.log('DATABASE_URL set:', !!connectionString);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
-// For Vercel/Production: use DATABASE_URL if available (injected by Vercel)
-if (process.env.DATABASE_URL) {
-  console.log('✅ Using DATABASE_URL from environment');
-  const db = pgp(process.env.DATABASE_URL);
-  module.exports = db;
-} else {
-  const db = pgp(dbConfig);
-  module.exports = db;
-}
+// Create database connection
+const db = pgp(connectionString);
 
-// Connection pool
-const db = module.exports;
+// Export immediately - don't block on schema initialization
+module.exports = db;
 
-// Test connection and initialize schema (non-blocking)
-if (process.env.NODE_ENV !== 'production') {
-  // Only test connection in development
-  db.one("SELECT version();")
-    .then(() => {
-      console.log('✅ Database connected successfully');
-      initializeSchema();
-    })
-    .catch(err => {
-      console.error('❌ Database connection error:', err.message);
-      process.exit(1);
-    });
-} else {
-  // In production (Vercel), initialize schema silently
+// Initialize schema asynchronously (don't wait for it)
+setTimeout(() => {
   initializeSchema().catch(err => {
-    console.error('⚠️ Schema initialization warning:', err.message);
-    // Don't exit - let the function continue
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('⚠️  Schema init warning:', err.message);
+    } else {
+      console.error('❌ Schema init error:', err);
+    }
   });
-}
+}, 100);
 
 // Initialize database schema
 async function initializeSchema() {
   try {
-    // Create tables
+    // Just try to connect
+    await db.one('SELECT version();');
+    console.log('✅ Database connected successfully');
+    
+    // Create tables if they don't exist
     await db.none(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -90,8 +78,7 @@ async function initializeSchema() {
         UNIQUE(playlist_id, song_id)
       );
     `);
-
-    console.log('✅ Database schema initialized');
+    console.log('✅ Tables created');
 
     // Create indexes
     await db.none(`
@@ -102,20 +89,9 @@ async function initializeSchema() {
       CREATE INDEX IF NOT EXISTS idx_playlist_songs_playlist_id ON playlist_songs(playlist_id);
       CREATE INDEX IF NOT EXISTS idx_playlist_songs_song_id ON playlist_songs(song_id);
     `);
-
-    console.log('✅ Database indexes created');
-
-    // Auto-promote admin user if it's the first time
-    const adminEmail = process.env.ADMIN_EMAIL || 'egyrem985@gmail.com';
-    await db.none(`
-      UPDATE users SET role = 'admin' WHERE email = $1;
-    `, [adminEmail]).catch(() => {
-      // User doesn't exist yet, that's fine
-    });
+    console.log('✅ Indexes created');
 
   } catch (err) {
-    console.error('❌ Error initializing schema:', err.message);
+    console.error('Schema init error:', err.message);
   }
 }
-
-module.exports = db;
