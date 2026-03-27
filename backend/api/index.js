@@ -14,22 +14,19 @@ const adminRoutes = require('../routes/admin');
 
 const app = express();
 
-// Middleware
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:8000',
-  'http://localhost:5173',
-  'https://frontend-ten-coral-49.vercel.app',
-  'https://frontend-i4luguskg-egyrems-projects.vercel.app',
-  process.env.CORS_ORIGIN
-].filter(Boolean);
-
+// ===== CORS MIDDLEWARE =====
+// IMPORTANT: This must be FIRST middleware!
 app.use(cors({
-  origin: allowedOrigins,
+  origin: true, // Allow all origins (testing)
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
+
+// Explicit OPTIONS handler for all routes (preflight)
+app.options('*', cors());
+
 app.use(express.json());
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
