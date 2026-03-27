@@ -3,8 +3,8 @@ const API_BASE = (() => {
   const hostname = window.location.hostname;
   
   // Production: Use Vercel backend URL
-  if (hostname === 'mini-song.vercel.app' || hostname.includes('vercel.app')) {
-    return 'https://mini-song-api.vercel.app/api';
+  if (hostname.includes('vercel.app')) {
+    return 'https://mini-song-3q8k.vercel.app/api';
   }
   
   // Development: Use localhost
